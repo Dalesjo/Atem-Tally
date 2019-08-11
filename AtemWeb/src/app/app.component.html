@@ -1,0 +1,26 @@
+<h1>Chat</h1>
+<button (click)="send('Kamera1');">Kamera1</button>
+<button (click)="send('Kamera2');">Kamera2</button>
+<button (click)="send('Kamera3');">Kamera3</button>
+<button (click)="send('Kamera4');">Kamera4</button>
+<button (click)="send('Kamera5');">Kamera5</button>
+<button (click)="send('Kamera6');">Kamera6</button>
+<button (click)="send('Kamera7');">Kamera7</button>
+
+
+<hr />
+<table>
+  <thead>
+    <tr>
+      <td>Program</td>
+      <td>Preview</td>
+    </tr>
+  </thead>
+  <tbody >
+    <tr *ngFor="let message of messages">
+      <td>{{ message.program }}</td>
+      <td>{{ message.preview }}</td>
+    </tr>
+  </tbody>
+</table>
+

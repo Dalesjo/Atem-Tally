@@ -3,10 +3,23 @@ import { Subject } from 'rxjs';
 import { SignalService } from '../services/signal.service';
 
 
-export interface Tally {
+export interface Mixer {
   program: string;
   preview: string;
 }
+
+export interface Input {
+  name: string;
+  program: boolean;
+  preview: boolean;
+}
+
+export interface Tally {
+  me1: Mixer;
+  me2: Mixer;
+  inputs: Input[];
+}
+
 
 @Injectable({
   providedIn: 'root'

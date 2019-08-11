@@ -1,26 +1,51 @@
-<h1>Chat</h1>
-<button (click)="send('Kamera1');">Kamera1</button>
-<button (click)="send('Kamera2');">Kamera2</button>
-<button (click)="send('Kamera3');">Kamera3</button>
-<button (click)="send('Kamera4');">Kamera4</button>
-<button (click)="send('Kamera5');">Kamera5</button>
-<button (click)="send('Kamera6');">Kamera6</button>
-<button (click)="send('Kamera7');">Kamera7</button>
+
+<div id="wrapper">
+
+  <div>
+    <h1>ME1</h1>
+    <table>
+      <thead>
+        <tr>
+          <td>PROGRAM</td>
+          <td>PREVIEW</td>
+        </tr>
+      </thead>
+      <tbody *ngIf="current && current.me1">
+        <tr>
+          <td>{{ current.me1.program }}</td>
+          <td>{{ current.me1.preview }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <h1>ME2</h1>
+    <table>
+      <thead>
+        <tr>
+          <td>PROGRAM</td>
+          <td>PREVIEW</td>
+        </tr>
+      </thead>
+      <tbody *ngIf="current && current.me1">
+        <tr>
+          <td>{{ current.me2.program }}</td>
+          <td>{{ current.me2.preview }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 
-<hr />
-<table>
-  <thead>
-    <tr>
-      <td>Program</td>
-      <td>Preview</td>
-    </tr>
-  </thead>
-  <tbody >
-    <tr *ngFor="let message of messages">
-      <td>{{ message.program }}</td>
-      <td>{{ message.preview }}</td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="current && current.inputs" >
+   <div *ngFor="let input of current.inputs"
+        class="tallybox"
+        [class.program]="input.program"
+        [class.preview]="input.preview">
+     {{ input.name }}
+   </div>
+</div>
+
 

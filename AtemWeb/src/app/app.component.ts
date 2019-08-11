@@ -28,7 +28,7 @@ export class AppComponent {
 
     console.log("data", this.current ? "yes" : "no");
 
-    this.tallyService.send({ "program": channel, "preview": this.current ? this.current.program : "" });
+    //this.tallyService.send({ "program": channel, "preview": this.current ? this.current.program : "" });
   }
 
 }

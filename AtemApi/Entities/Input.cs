@@ -7,8 +7,8 @@ namespace AtemApi.Entities
 {
     public class Input
     {
-        public string name;
-        public bool program;
-        public bool preview;
+        public string n;
+        public bool r;
+        public bool g;
     }
 }

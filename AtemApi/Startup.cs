@@ -58,7 +58,9 @@ namespace AtemApi
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR();
 
+            services.AddSingleton<TallyService>();
             services.AddHostedService<AtemService>();
+
             SetCors(services);
         }
 

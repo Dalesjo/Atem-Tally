@@ -24,11 +24,6 @@ namespace AtemApi.Services
     {
         private Timer _timer;
 
-        /// <summary>
-        /// Current state of the tally
-        /// </summary>
-        private Tally tally;
-
         private AtemClient client;
 
         /// <summary>
@@ -39,44 +34,37 @@ namespace AtemApi.Services
         /// <summary>
         /// Access to the signalR Hub.
         /// </summary>
-        private IHubContext<TallyHub, ITallyClient> hub;
+        private IHubContext<TallyHub, ITallyClient> tallyhub;
+
+        private TallyService tallyService;
 
         /// <summary>
         /// IP-number of ATEM mixer
         /// </summary>
         private string mixer;
 
+        public bool ME2Tally { get; }
+
+
         /// <summary>
         /// Dictionary with replacement names for each input.
         /// </summary>
         private Dictionary<string, string> inputTallyNames;
 
-        public AtemService(IConfiguration configuration, ILogger<AtemService> logger, IHubContext<TallyHub, ITallyClient> tallyHub)
+        public AtemService(IConfiguration configuration, TallyService _tallyService, ILogger<AtemService> logger, IHubContext<TallyHub, ITallyClient> _tallyHub)
         {
             log = logger;
-            hub = tallyHub;
+            tallyhub = _tallyHub;
+            tallyService = _tallyService;
 
             mixer = configuration.GetSection("Settings:Atem").GetValue<string>("Mixer");
+
+            ME2Tally = configuration.GetSection("Settings:Atem").GetValue<bool>("ME2Tally");
 
             inputTallyNames = configuration
                 .GetSection("Settings:Atem:Inputs")
                 .GetChildren()
                 .ToDictionary(x => x.Key, x => x.Value);
-
-            tally = new Tally()
-            {
-                me1 = new Mixer()
-                {
-                    program = "unknown",
-                    preview = "unknown"
-                },
-                me2 = new Mixer()
-                {
-                    program = "unknown",
-                    preview = "unknown"
-                },
-                inputs = new List<Input>()
-            };
         }
 
         public void Dispose()
@@ -124,12 +112,12 @@ namespace AtemApi.Services
                         onTally(cmd as TallyBySourceCommand);
                         sendUpdate = true;
                     }
-                    else if(cmd is ProgramInputGetCommand)
+                    else if(ME2Tally && cmd is ProgramInputGetCommand)
                     {
                         onProgram(cmd as ProgramInputGetCommand);
                         sendUpdate = true;
                     }
-                    else if (cmd is PreviewInputGetCommand)
+                    else if (ME2Tally && cmd is PreviewInputGetCommand)
                     {
                         onPreview(cmd as PreviewInputGetCommand);
                         sendUpdate = true;
@@ -138,7 +126,7 @@ namespace AtemApi.Services
 
                 if(sendUpdate)
                 {
-                    hub.Clients.All.ReceiveTally(tally);
+                    tallyhub.Clients.All.ReceiveTally(tallyService.tally);
                 }
             }
             catch (Exception e)
@@ -151,19 +139,19 @@ namespace AtemApi.Services
         {
             log.LogInformation($"Tally has updated inputlist to {tallyBySourceCommand.Tally.Count} items.");
             var inputs = new List<Input>();
-            foreach(var tally in tallyBySourceCommand.Tally)
+            foreach(var source in tallyBySourceCommand.Tally)
             {
                 var input = new Input()
                 {
-                    name = getTallyName(tally.Key.ToString()),
-                    program = tally.Value.Item1,
-                    preview = tally.Value.Item2
+                    n = getTallyName(source.Key.ToString()),
+                    r = source.Value.Item1,
+                    g = source.Value.Item2
                 };
 
                 inputs.Add(input);
             }
 
-            tally.inputs = inputs;
+            tallyService.tally.inputs = inputs;
         }
 
         private void onPreview(PreviewInputGetCommand previewInputGetCommand)
@@ -173,13 +161,13 @@ namespace AtemApi.Services
             {
                 // TWO
                 log.LogInformation($"Preview changed for ME2 to {preview}");
-                tally.me2.preview = preview;
+                tallyService.tally.me2.g = preview;
             }
             else
             {
                 // ONE
                 log.LogInformation($"Preview changed for ME1 to {preview}");
-                tally.me1.preview = preview;
+                tallyService.tally.me1.g = preview;
             }
         }
 
@@ -190,13 +178,13 @@ namespace AtemApi.Services
             {
                 // TWO
                 log.LogInformation($"Preview changed for ME2 to {program}");
-                tally.me2.program = program;
+                tallyService.tally.me2.r = program;
             }
             else
             {
                 // ONE
                 log.LogInformation($"Preview changed for ME1 to {program}");
-                tally.me1.program = program;
+                tallyService.tally.me1.r = program;
             }
         }
 

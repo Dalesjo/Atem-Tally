@@ -7,7 +7,7 @@ namespace AtemApi.Entities
 {
     public class Mixer
     {
-        public string program;
-        public string preview;
+        public string r;
+        public string g;
     }
 }

@@ -12,8 +12,8 @@
       </thead>
       <tbody *ngIf="current && current.me1">
         <tr>
-          <td>{{ current.me1.program }}</td>
-          <td>{{ current.me1.preview }}</td>
+          <td>{{ current.me1.r }}</td>
+          <td>{{ current.me1.g }}</td>
         </tr>
       </tbody>
     </table>
@@ -30,8 +30,8 @@
       </thead>
       <tbody *ngIf="current && current.me1">
         <tr>
-          <td>{{ current.me2.program }}</td>
-          <td>{{ current.me2.preview }}</td>
+          <td>{{ current.me2.r }}</td>
+          <td>{{ current.me2.g }}</td>
         </tr>
       </tbody>
     </table>
@@ -42,9 +42,9 @@
 <div *ngIf="current && current.inputs" >
    <div *ngFor="let input of current.inputs"
         class="tallybox"
-        [class.program]="input.program"
-        [class.preview]="input.preview">
-     {{ input.name }}
+        [class.program]="input.r"
+        [class.preview]="input.g">
+     {{ input.n }}
    </div>
 </div>
 

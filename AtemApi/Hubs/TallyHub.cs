@@ -17,15 +17,18 @@ namespace AtemApi.Hubs
         /// Nlog.
         /// </summary>
         private readonly ILogger log;
+        private TallyService tallyService;
 
-        public TallyHub(ILogger<TallyHub> logger)
+        public TallyHub(ILogger<TallyHub> logger, TallyService _tallyService)
         {
             log = logger;
+            tallyService = _tallyService;
         }
 
         public override async Task OnConnectedAsync()
         {
             log.LogInformation($"Device connected with connection id {Context.ConnectionId}");
+            await Clients.Caller.ReceiveTally(tallyService.tally);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)

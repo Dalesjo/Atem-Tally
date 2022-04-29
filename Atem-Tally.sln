@@ -5,6 +5,16 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atem-Tally", "Atem-Tally\Atem-Tally.csproj", "{F30C4F1A-602D-4899-B899-C85B1C63CEF0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem", "LibAtem\LibAtem.csproj", "{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.DeviceProfile", "LibAtem.DeviceProfile\LibAtem.DeviceProfile.csproj", "{9F03707B-CD64-410E-996C-F68A98E958AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.Discovery", "LibAtem.Discovery\LibAtem.Discovery.csproj", "{7DD54969-D13F-433D-977E-14FA8F701092}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.State", "LibAtem.State\LibAtem.State.csproj", "{99A15AD3-C174-4058-B7EB-605FA5C6123D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.State.Test", "LibAtem.State.Test\LibAtem.State.Test.csproj", "{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +25,26 @@ Global
 		{F30C4F1A-602D-4899-B899-C85B1C63CEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F30C4F1A-602D-4899-B899-C85B1C63CEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F30C4F1A-602D-4899-B899-C85B1C63CEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F03707B-CD64-410E-996C-F68A98E958AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F03707B-CD64-410E-996C-F68A98E958AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F03707B-CD64-410E-996C-F68A98E958AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F03707B-CD64-410E-996C-F68A98E958AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DD54969-D13F-433D-977E-14FA8F701092}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD54969-D13F-433D-977E-14FA8F701092}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD54969-D13F-433D-977E-14FA8F701092}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD54969-D13F-433D-977E-14FA8F701092}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99A15AD3-C174-4058-B7EB-605FA5C6123D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99A15AD3-C174-4058-B7EB-605FA5C6123D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99A15AD3-C174-4058-B7EB-605FA5C6123D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99A15AD3-C174-4058-B7EB-605FA5C6123D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

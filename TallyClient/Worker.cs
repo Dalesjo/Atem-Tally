@@ -12,19 +12,19 @@ namespace TallyClient
         {
             Log = log;
             Settings = settings;
-            //Controller = new GpioController();
+            Controller = new GpioController();
 
             foreach (var light in Settings.Lights)
             {
-                //Controller.OpenPin(light.Program, PinMode.Output);
-                //Controller.OpenPin(light.Preview, PinMode.Output);
+                Controller.OpenPin(light.Program, PinMode.Output);
+                Controller.OpenPin(light.Preview, PinMode.Output);
 
-                Log.LogInformation($"Setup {light.Name}, using pin Program: {light.Program}, Preview: {light.Preview}, On: {light.Pin}");
+                Log.LogInformation($"Setup '{light.Name}', using pin Program: {light.Program}, Preview: {light.Preview}, On: {light.Pin}");
             }
 
 
             Connection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:8000/tally")
+                .WithUrl($"http://{Settings.Host}:{Settings.Port}/tally")
                 .WithAutomaticReconnect(new TallyRetryPolicy())
                 .Build();
 
@@ -39,7 +39,7 @@ namespace TallyClient
 
 
         private bool IsBlinking { get; set;  }
-        private Thread BlinkingThread { get; set; }
+        private Thread? BlinkingThread { get; set; }
         private HubConnection Connection { get; set; }
         private GpioController Controller { get; set; }
         private ILogger<Worker> Log { get; set; }
@@ -58,10 +58,15 @@ namespace TallyClient
                 {
                     await Connection.StartAsync(stoppingToken);
                     stopBlinking();
-                    Log.LogInformation("Connection established with server");
+                    Log.LogInformation($"Connection established with server '{Settings.Host}:{Settings.Port}'");
 
-                    await Connection.SendAsync("RegisterTally", "Tally01");
-                    Log.LogInformation("Register as Tally01");
+                    // TODO
+                    foreach (var light in Settings.Lights)
+                    {
+                        await Connection.SendAsync("RegisterTally", light.Name);
+                        Log.LogInformation($"Register as '{light.Name}'");
+                    }
+
 
                     return true;
                 }
@@ -72,7 +77,7 @@ namespace TallyClient
                 catch
                 {
                     // Failed to connect, trying again in 5000 ms.
-                    Log.LogError("Could not establish connection to server");
+                    Log.LogWarning($"Could not establish connection to server '{Settings.Host}:{Settings.Port}'");
                     startBlinking();
                     await Task.Delay(5000);
                 }
@@ -119,7 +124,7 @@ namespace TallyClient
                 Log.LogInformation("Blinking");
                 foreach (var light in Settings.Lights)
                 {
-                    //Controller.Write(light.Preview, high ? PinValue.High : PinValue.Low);
+                    Controller.Write(light.Preview, high ? PinValue.High : PinValue.Low);
                 }
 
                 high = !high;
@@ -128,8 +133,8 @@ namespace TallyClient
 
             foreach (var light in Settings.Lights)
             {
-                //Controller.Write(light.Preview, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
-                //Controller.Write(light.Program, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
+                Controller.Write(light.Preview, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
+                Controller.Write(light.Program, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
             }
         }
 
@@ -137,7 +142,7 @@ namespace TallyClient
         {
             var timeout = new Random().Next(0, 5) * 1000;
             startBlinking();
-            Log.LogInformation($"Connection Lost, reconnection in {timeout} seconds");
+            Log.LogWarning($"Connection lost to server '{Settings.Host}:{Settings.Port}', reconnection in {timeout} seconds");
 
             await Task.Delay(timeout);
             await Connection.StartAsync();
@@ -145,14 +150,14 @@ namespace TallyClient
 
         private Task OnReconnected(string? arg)
         {
-            Log.LogInformation($"Connection established");
+            Log.LogInformation($"Connection restablished to server '{Settings.Host}:{Settings.Port}'");
             stopBlinking();
             return Task.CompletedTask;
         }
 
         private Task OnReconnecting(Exception? arg)
         {
-            Log.LogInformation($"Connection lost");
+            Log.LogWarning($"Connection lost to server '{Settings.Host}:{Settings.Port}'");
             startBlinking();
             return Task.CompletedTask;
         }
@@ -169,13 +174,13 @@ namespace TallyClient
 
             if(light.Pin == PinValue.High)
             {
-                //Controller.Write(light.Program, tally.Program ? PinValue.High : PinValue.Low);
-                //Controller.Write(light.Preview, tally.Preview ? PinValue.High : PinValue.Low);
+                Controller.Write(light.Program, tally.Program ? PinValue.High : PinValue.Low);
+                Controller.Write(light.Preview, tally.Preview ? PinValue.High : PinValue.Low);
                 return;
             }
 
-            //Controller.Write(light.Program, tally.Program ? PinValue.Low : PinValue.High);
-            //Controller.Write(light.Preview, tally.Preview ? PinValue.Low : PinValue.High);
+            Controller.Write(light.Program, tally.Program ? PinValue.Low : PinValue.High);
+            Controller.Write(light.Preview, tally.Preview ? PinValue.Low : PinValue.High);
 
         }
     }

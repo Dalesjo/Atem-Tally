@@ -10,6 +10,10 @@ namespace TallyClient
     {
         public Settings(IConfiguration configuration)
         {
+            var server = configuration.GetSection("Server");
+            Host = server.GetValue<string>("host");
+            Port = server.GetValue<int>("port");
+
             var section = configuration.GetSection("Tally");
             var tallies = section.GetChildren();
 
@@ -21,6 +25,10 @@ namespace TallyClient
         }
 
         public List<TallySetting> Lights { get; set; } = new List<TallySetting>();
+
+        public string Host { get; set; }
+
+        public int Port { get; set; }
 
     }
 }

@@ -2,6 +2,7 @@ using NLog.Extensions.Hosting;
 using TallyClient;
 
 IHost host = Host.CreateDefaultBuilder(args)
+    .UseSystemd()
     .ConfigureServices(services =>
     {
         services.AddSingleton<Settings>();

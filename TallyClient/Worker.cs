@@ -47,9 +47,20 @@ namespace TallyClient
         {
             startBlinking();
             await ConnectWithRetryAsync(stoppingToken);
+            TurnOff();
         }
 
-        private async Task<bool> ConnectWithRetryAsync(CancellationToken stoppingToken)
+        private void TurnOff()
+        {
+            // Turn off Program/Preview, wait for server to give tally information.
+            foreach (var light in Settings.Lights)
+            {
+                Controller.Write(light.Preview, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
+                Controller.Write(light.Program, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
+            }
+        }
+
+            private async Task<bool> ConnectWithRetryAsync(CancellationToken stoppingToken)
         {
             // Keep trying to until we can start or the token is canceled.
             while (true)
@@ -118,6 +129,12 @@ namespace TallyClient
 
         private void Blinking()
         {
+            // Turn off program
+            foreach (var light in Settings.Lights)
+            {
+                Controller.Write(light.Program, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);
+            }
+
             var high = true;
             while (IsBlinking)
             {
@@ -131,6 +148,7 @@ namespace TallyClient
                 Thread.Sleep(500);
             }
 
+            // Turn off Program/Preview, wait for server to give tally information.
             foreach (var light in Settings.Lights)
             {
                 Controller.Write(light.Preview, light.Pin == PinValue.High ? PinValue.Low : PinValue.High);

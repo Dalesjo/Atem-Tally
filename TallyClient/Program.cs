@@ -4,6 +4,7 @@ using TallyClient;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
+        services.AddSingleton<Settings>();
         services.AddHostedService<Worker>();
     }).ConfigureLogging(logging =>
     {

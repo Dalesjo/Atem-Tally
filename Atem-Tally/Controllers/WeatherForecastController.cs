@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Atem_Tally.Controllers
+namespace TallyServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]

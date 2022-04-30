@@ -1,4 +1,4 @@
-namespace Atem_Tally
+namespace TallyServer
 {
     public class WeatherForecast
     {

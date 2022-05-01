@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#if output=$(git status --porcelain) && [ -n "$output" ]; then
-#  echo "You have uncommited changes"
-#  exit 3
-#fi
+if output=$(git status --porcelain) && [ -n "$output" ]; then
+  echo "You have uncommited changes"
+  exit 3
+fi
 
 # New Version number
 git pull
@@ -21,8 +21,8 @@ echo "Commiting changes"
 git add ./TallyClient/TallyClient.csproj
 git add ./TallyServer/TallyServer.csproj
 
-tar -czvf images/tally-client-${VERSION}.tar.gz /TallyServer/bin/Release/net6.0/win-x64/
-tar -czvf images/tally-server-${VERSION}.tar.gz /TallyClient/bin/Release/net6.0/linux-arm64/publish/
+tar -czvf images/tally-client-${VERSION}.tar.gz TallyServer/bin/Release/net6.0/win-x64/
+tar -czvf images/tally-server-${VERSION}.tar.gz TallyClient/bin/Release/net6.0/linux-arm64/publish/
 
 git commit -m "Built new Version ${VERSION}"
 git push 

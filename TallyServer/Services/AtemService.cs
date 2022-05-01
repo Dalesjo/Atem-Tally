@@ -144,7 +144,7 @@ namespace TallyServer.Services
                 Program = false
             };
 
-            Log.LogInformation($"Input '{input.LongName}'");
+            Log.LogInformation($"Input  '{input.Id}' / '{input.LongName}'");
 
             AtemStatus.Inputs.Add(input);
         }

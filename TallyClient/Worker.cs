@@ -71,13 +71,7 @@ namespace TallyClient
                     stopBlinking();
                     Log.LogInformation($"Connection established with server '{Settings.Host}:{Settings.Port}'");
 
-                    // TODO
-                    foreach (var light in Settings.Lights)
-                    {
-                        await Connection.SendAsync("RegisterTally", light.Name);
-                        Log.LogInformation($"Register as '{light.Name}'");
-                    }
-
+                    await RegisterTally();
 
                     return true;
                 }
@@ -95,6 +89,14 @@ namespace TallyClient
             }
         }
 
+        private async Task RegisterTally()
+        {
+            foreach (var light in Settings.Lights)
+            {
+                await Connection.SendAsync("RegisterTally", light.Name);
+                Log.LogInformation($"Register as '{light.Name}'");
+            }
+        }
 
         private void startBlinking()
         {
@@ -170,6 +172,7 @@ namespace TallyClient
         {
             Log.LogInformation($"Connection restablished to server '{Settings.Host}:{Settings.Port}'");
             stopBlinking();
+            RegisterTally().GetAwaiter().GetResult();
             return Task.CompletedTask;
         }
 

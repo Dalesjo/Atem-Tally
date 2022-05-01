@@ -140,7 +140,7 @@ namespace TallyClient
             var high = true;
             while (IsBlinking)
             {
-                Log.LogInformation("Blinking");
+                Log.LogDebug("Blinking");
                 foreach (var light in Settings.Lights)
                 {
                     Controller.Write(light.Preview, high ? PinValue.High : PinValue.Low);

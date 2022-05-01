@@ -1,12 +1,18 @@
-using TallyServer;
-using TallyServer.Services;
-using NLog.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 using NLog.Web;
+using TallyServer;
 using TallyServer.Hubs;
+using TallyServer.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+var webApplicationOptions = new WebApplicationOptions() 
+{ 
+    ContentRootPath = AppContext.BaseDirectory, 
+    Args = args, 
+    ApplicationName = System.Diagnostics.Process.GetCurrentProcess().ProcessName 
+}; 
 
-
+var builder = WebApplication.CreateBuilder(webApplicationOptions); 
+builder.Host.UseWindowsService();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -18,6 +24,17 @@ builder.Services.AddHostedService<AtemService>();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
+
+// Enable windows service
+if (OperatingSystem.IsWindows())
+{
+    builder.Services.Configure<EventLogSettings>(config =>
+    {
+        config.LogName = "TallyServer";
+        config.SourceName = "TallyServer";
+    });
+
+}
 
 var app = builder.Build();
 

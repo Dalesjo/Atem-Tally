@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallyServer", "Atem-Tally\TallyServer.csproj", "{F30C4F1A-602D-4899-B899-C85B1C63CEF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallyServer", "TallyServer\TallyServer.csproj", "{F30C4F1A-602D-4899-B899-C85B1C63CEF0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem", "LibAtem\LibAtem.csproj", "{94E4BDD0-E2A2-4291-8A2E-038C9E5C7EB6}"
 EndProject

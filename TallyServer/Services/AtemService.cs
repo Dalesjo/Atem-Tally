@@ -13,15 +13,16 @@ namespace TallyServer.Services
 {
     public class AtemService : IHostedService
     {
-        public List<Input> Inputs { get; private set; } = new List<Input>();
         public AtemService(
             AtemSettings atemSettings,
+            AtemStatus atemStatus,
             ILogger<AtemService> logger,
             IHubContext<TallyHub, ITallyClient> tallyHub)
         {
             Log = logger;
             AtemSettings = atemSettings;
             TallyHub = tallyHub;
+            AtemStatus = atemStatus;
 
             Client = new AtemClient(AtemSettings.Mixer);
             Client.OnReceive += OnCommand;
@@ -31,6 +32,8 @@ namespace TallyServer.Services
 
         public IHubContext<TallyHub, ITallyClient> TallyHub { get; private set; }
         private AtemSettings AtemSettings { get; }
+
+        private AtemStatus AtemStatus { get; set; }
         private AtemClient Client { get; set; }
         private bool firstCommand { get; set; } = true;
         private ILogger Log { get; set; }
@@ -143,7 +146,7 @@ namespace TallyServer.Services
 
             Log.LogInformation($"Input '{input.LongName}'");
 
-            Inputs.Add(input);
+            AtemStatus.Inputs.Add(input);
         }
 
         /// <summary>
@@ -157,9 +160,9 @@ namespace TallyServer.Services
             {
                 return;
             }
-
+            
             var preview = previewInputGetCommand.Source.ToString();
-            var input = Inputs.FirstOrDefault(c => c.Id == preview);
+            var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
             if (input == null)
             {
                 return;
@@ -181,7 +184,7 @@ namespace TallyServer.Services
             }
 
             var preview = programInputGetCommand.Source.ToString();
-            var input = Inputs.FirstOrDefault(c => c.Id == preview);
+            var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
             if (input == null)
             {
                 return;
@@ -199,7 +202,7 @@ namespace TallyServer.Services
         {
             foreach (var source in tallyBySourceCommand.Tally)
             {
-                var input = Inputs.FirstOrDefault(c => c.Id == source.Key.ToString());
+                var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == source.Key.ToString());
 
                 if(input == null)
                 {
@@ -219,7 +222,7 @@ namespace TallyServer.Services
         /// <returns></returns>
         private async Task Update()
         {
-            foreach (var input in Inputs)
+            foreach (var input in AtemStatus.Inputs)
             {
                 Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
 

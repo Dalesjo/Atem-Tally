@@ -17,6 +17,7 @@ builder.Host.UseWindowsService();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<AtemSettings>();
+builder.Services.AddSingleton<AtemStatus>();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<AtemService>();
 

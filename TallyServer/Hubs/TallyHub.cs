@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using TallyServer.Contract;
+using TallyServer.Services;
 using TallyShared.Contract;
 
 namespace TallyServer.Hubs
@@ -8,16 +9,22 @@ namespace TallyServer.Hubs
     {
         ILogger<TallyHub> Log;
 
+        AtemSettings AtemSettings { get; set; }
+        AtemStatus AtemStatus { get; set; }
+
         public TallyHub(
-            ILogger<TallyHub> log)
+            ILogger<TallyHub> log,
+            AtemSettings atemSettings,
+            AtemStatus atemStatus)
         {
             Log = log;
+            AtemSettings = atemSettings;
+            AtemStatus = atemStatus;
         }
 
         public override async Task OnConnectedAsync()
         {
             Log.LogInformation($"Device connected with connection id {Context.ConnectionId}");
-            //await Clients.Caller.ReceiveTally(tallyService.tally);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -29,6 +36,7 @@ namespace TallyServer.Hubs
         {
             await  Groups.AddToGroupAsync(Context.ConnectionId, tally);
             Log.LogInformation($"RegisterTally {Context.ConnectionId} as {tally}");
+            await Update();
 
         }
 
@@ -37,6 +45,44 @@ namespace TallyServer.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, tally);
             Log.LogInformation($"UnregisterTally {Context.ConnectionId} as {tally}");
             
+        }
+
+        /// <summary>
+        /// Sends update about tally to all connected clients.
+        /// </summary>
+        /// <returns></returns>
+        private async Task Update()
+        {
+            foreach (var input in AtemStatus.Inputs)
+            {
+                Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
+
+                await UpdateRegistratedDevices(input);
+                await Clients.All.RecieveChannel(input);
+            }
+        }
+
+        /// <summary>
+        /// Send update to specific clients.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private async Task UpdateRegistratedDevices(Input input)
+        {
+            var tallies = AtemSettings.Inputs
+                .Where(tally => tally.Key == input.Id && String.IsNullOrEmpty(tally.Value) == false)
+                .Select(tally => new Tally()
+                {
+                    Name = tally.Value,
+                    Program = input.Program,
+                    Preview = input.Preview
+                })
+                .ToList();
+
+            foreach (var tally in tallies)
+            {
+                await Clients.Group(tally.Name).ReceiveTally(tally);
+            }
         }
     }
 }

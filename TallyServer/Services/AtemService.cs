@@ -161,6 +161,11 @@ namespace TallyServer.Services
                 return;
             }
             
+            if(!AtemSettings.Preview)
+            {
+                return;
+            }
+
             var preview = previewInputGetCommand.Source.ToString();
             var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
             if (input == null)

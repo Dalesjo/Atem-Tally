@@ -58,17 +58,17 @@ namespace TallyServer.Services
                 return true;
             }
 
-            if (index == MixEffectBlockId.Two && AtemSettings.ME1 == false)
+            if (index == MixEffectBlockId.Two && AtemSettings.ME2 == false)
             {
                 return true;
             }
 
-            if (index == MixEffectBlockId.Three && AtemSettings.ME1 == false)
+            if (index == MixEffectBlockId.Three && AtemSettings.ME3 == false)
             {
                 return true;
             }
 
-            if (index == MixEffectBlockId.Four && AtemSettings.ME1 == false)
+            if (index == MixEffectBlockId.Four && AtemSettings.ME4 == false)
             {
                 return true;
             }
@@ -98,14 +98,18 @@ namespace TallyServer.Services
 
                     if (cmd is ProgramInputGetCommand programInputGetCommand)
                     {
-                        OnProgram(programInputGetCommand);
-                        sendUpdate = true;
+                        if(OnProgram(programInputGetCommand))
+                        {
+                            sendUpdate = true;
+                        }
                     }
 
                     if (cmd is PreviewInputGetCommand previewInputGetCommand)
                     {
-                        OnPreview(previewInputGetCommand);
-                        sendUpdate = true;
+                        if(OnPreview(previewInputGetCommand))
+                        {
+                            sendUpdate = true;
+                        }
                     }
                 }
 
@@ -174,24 +178,24 @@ namespace TallyServer.Services
         /// Used to capture any mixer (ME1, ME2, ME3 ...) that is using an input but that is not pushed to the preview output.
         /// </summary>
         /// <param name="previewInputGetCommand"></param>
-        private void OnPreview(PreviewInputGetCommand previewInputGetCommand)
+        private bool OnPreview(PreviewInputGetCommand previewInputGetCommand)
         {
             var index = previewInputGetCommand.Index;
             var preview = previewInputGetCommand.Source.ToString();
             if (IsMixerDisabled(index, preview))
             {
-                return;
+                return false;
             }
             
             if(!AtemSettings.MEPreview)
             {
-                return;
+                return false;
             }
 
             var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
             if (input == null)
             {
-                return;
+                return false;
             }
 
             /* Clear preview lamps */
@@ -209,31 +213,33 @@ namespace TallyServer.Services
 
             if (!thisProgram.Any())
             {
-                return;
+                return false;
             }
             
             otherLamps.ForEach(m => m.Preview = false);
             thisProgram.ForEach(m => m.Preview = true);
 
             Log.LogTrace($"onPreview {index} {preview}");
+
+            return true;
         }
         /// <summary>
         /// Used to capture any mixer (ME1, ME2, ME3 ...) that is using an input but that is not pushed to the program output.
         /// </summary>
         /// <param name="previewInputGetCommand"></param>
-        private void OnProgram(ProgramInputGetCommand programInputGetCommand)
+        private bool OnProgram(ProgramInputGetCommand programInputGetCommand)
         {
             var index = programInputGetCommand.Index;
             var program = programInputGetCommand.Source.ToString();
             if (IsMixerDisabled(index, program))
             {
-                return;
+                return false;
             }
 
             var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == program);
             if (input == null)
             {
-                return;
+                return false;
             }
 
             /* Clear preview lamps */
@@ -251,13 +257,15 @@ namespace TallyServer.Services
 
             if (!thisProgram.Any())
             {
-                return;
+                return false;
             }
 
             otherLamps.ForEach(m => m.Program = false);
             thisProgram.ForEach(m => m.Program = true);
 
             Log.LogInformation($"onProgram {index} {program}");
+
+            return true;
         }
 
         /// <summary>

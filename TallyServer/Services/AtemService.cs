@@ -51,24 +51,24 @@ namespace TallyServer.Services
             return Task.CompletedTask;
         }
 
-        private bool IsMixerDisabled(MixEffectBlockId index)
+        private bool IsMixerDisabled(MixEffectBlockId index, string source)
         {
             if (index == MixEffectBlockId.One && AtemSettings.ME1 == false)
             {
                 return true;
             }
 
-            if (index == MixEffectBlockId.Two && AtemSettings.ME2 == false)
+            if (index == MixEffectBlockId.Two && AtemSettings.ME1 == false)
             {
                 return true;
             }
 
-            if (index == MixEffectBlockId.Three && AtemSettings.ME3 == false)
+            if (index == MixEffectBlockId.Three && AtemSettings.ME1 == false)
             {
                 return true;
             }
 
-            if (index == MixEffectBlockId.Four && AtemSettings.ME4 == false)
+            if (index == MixEffectBlockId.Four && AtemSettings.ME1 == false)
             {
                 return true;
             }
@@ -141,8 +141,29 @@ namespace TallyServer.Services
                 LongName = inputPropertiesGetCommand.LongName,
                 ShortName = inputPropertiesGetCommand.ShortName,
                 Preview = false,
-                Program = false
+                Program = false,
+                Mixer = new List<Mixer>()
             };
+
+            if(AtemSettings.ME1 && AtemSettings.ME1Inputs.Any(i => i == inputPropertiesGetCommand.Id.ToString()))
+            {
+                input.NewMixer(MixEffectBlockId.One);
+            }
+
+            if (AtemSettings.ME2 && AtemSettings.ME2Inputs.Any(i => i == inputPropertiesGetCommand.Id.ToString()))
+            {
+                input.NewMixer(MixEffectBlockId.Two);
+            }
+
+            if (AtemSettings.ME3 && AtemSettings.ME3Inputs.Any(i => i == inputPropertiesGetCommand.Id.ToString()))
+            {
+                input.NewMixer(MixEffectBlockId.Three);
+            }
+
+            if (AtemSettings.ME4 && AtemSettings.ME4Inputs.Any(i => i == inputPropertiesGetCommand.Id.ToString()))
+            {
+                input.NewMixer(MixEffectBlockId.Four);
+            }
 
             Log.LogInformation($"Input  '{input.Id}' / '{input.LongName}'");
 
@@ -156,24 +177,44 @@ namespace TallyServer.Services
         private void OnPreview(PreviewInputGetCommand previewInputGetCommand)
         {
             var index = previewInputGetCommand.Index;
-            if (IsMixerDisabled(index))
+            var preview = previewInputGetCommand.Source.ToString();
+            if (IsMixerDisabled(index, preview))
             {
                 return;
             }
             
-            if(!AtemSettings.Preview)
+            if(!AtemSettings.MEPreview)
             {
                 return;
             }
 
-            var preview = previewInputGetCommand.Source.ToString();
             var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
             if (input == null)
             {
                 return;
             }
 
-            input.Preview = input.Preview || true;
+            /* Clear preview lamps */
+            var otherLamps = AtemStatus.Inputs
+                .SelectMany(i => i.Mixer)
+                .Where(m => m.MixerId == index)
+                .ToList();
+
+            /* Set new lamp */
+            var thisProgram = AtemStatus.Inputs
+                .Where(i => i.Id == preview)
+                .SelectMany(i => i.Mixer)
+                .Where(m => m.MixerId == index)
+                .ToList();
+
+            if (!thisProgram.Any())
+            {
+                return;
+            }
+            
+            otherLamps.ForEach(m => m.Preview = false);
+            thisProgram.ForEach(m => m.Preview = true);
+
             Log.LogTrace($"onPreview {index} {preview}");
         }
         /// <summary>
@@ -183,20 +224,40 @@ namespace TallyServer.Services
         private void OnProgram(ProgramInputGetCommand programInputGetCommand)
         {
             var index = programInputGetCommand.Index;
-            if (IsMixerDisabled(index))
+            var program = programInputGetCommand.Source.ToString();
+            if (IsMixerDisabled(index, program))
             {
                 return;
             }
 
-            var preview = programInputGetCommand.Source.ToString();
-            var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == preview);
+            var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == program);
             if (input == null)
             {
                 return;
             }
 
-            input.Program = input.Program || true;
-            Log.LogTrace($"onProgram {index} {preview}");
+            /* Clear preview lamps */
+            var otherLamps = AtemStatus.Inputs
+                .SelectMany(i => i.Mixer)
+                .Where(m => m.MixerId == index)
+                .ToList();
+
+            /* Set new lamp */
+            var thisProgram = AtemStatus.Inputs
+                .Where(i => i.Id == program)
+                .SelectMany(i => i.Mixer)
+                .Where(m => m.MixerId == index)
+                .ToList();
+
+            if (!thisProgram.Any())
+            {
+                return;
+            }
+
+            otherLamps.ForEach(m => m.Program = false);
+            thisProgram.ForEach(m => m.Program = true);
+
+            Log.LogInformation($"onProgram {index} {program}");
         }
 
         /// <summary>
@@ -205,6 +266,11 @@ namespace TallyServer.Services
         /// <param name="tallyBySourceCommand"></param>
         private void OnTally(TallyBySourceCommand tallyBySourceCommand)
         {
+            if(AtemSettings.Tally == false)
+            {
+                return;
+            }
+
             foreach (var source in tallyBySourceCommand.Tally)
             {
                 var input = AtemStatus.Inputs.FirstOrDefault(c => c.Id == source.Key.ToString());
@@ -229,7 +295,7 @@ namespace TallyServer.Services
         {
             foreach (var input in AtemStatus.Inputs)
             {
-                Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
+                //Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
 
                 await UpdateRegistratedDevices(input);
                 await TallyHub.Clients.All.RecieveChannel(input);
@@ -248,14 +314,14 @@ namespace TallyServer.Services
                 .Select(tally => new Tally()
                 {
                     Name = tally.Value,
-                    Program = input.Program,
-                    Preview = input.Preview
+                    Program = input.Program || input.Mixer.Any(m => m.Program == true),
+                    Preview = input.Preview || input.Mixer.Any(m => m.Preview == true)
                 })
                 .ToList();
 
             foreach (var tally in tallies)
             {
-                
+                Log.LogDebug($"{tally.Name}, Program: {tally.Program}, Preview: {tally.Preview}");
                 await TallyHub.Clients.Group(tally.Name).ReceiveTally(tally);
             }
         }

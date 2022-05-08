@@ -31,6 +31,7 @@ zip -r ./../../../../../images/tally-server-${VERSION}.zip *
 cd ./../../../../../
 cd TallyClient/bin/Release/net6.0/linux-arm64/publish/
 tar -czvf ./../../../../../../images/tally-client-${VERSION}.tar.gz *
+cd ./../../../../../../
 
 git commit -m "Built new Version ${VERSION}"
 git push 

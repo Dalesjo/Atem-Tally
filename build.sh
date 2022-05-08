@@ -23,8 +23,14 @@ echo "Commiting changes"
 git add ./TallyClient/TallyClient.csproj
 git add ./TallyServer/TallyServer.csproj
 
-tar -czvf images/tally-server-${VERSION}.tar.gz TallyServer/bin/Release/net6.0/win-x64/
-tar -czvf images/tally-client-${VERSION}.tar.gz TallyClient/bin/Release/net6.0/linux-arm64/publish/
+
+cd TallyServer/bin/Release/net6.0/win-x64/
+#tar -czvf ./../../../../../images/tally-server-${VERSION}.tar.gz *
+zip -r ./../../../../../images/tally-server-${VERSION}.zip *
+
+cd ./../../../../../
+cd TallyClient/bin/Release/net6.0/linux-arm64/publish/
+tar -czvf ./../../../../../../images/tally-client-${VERSION}.tar.gz *
 
 git commit -m "Built new Version ${VERSION}"
 git push 

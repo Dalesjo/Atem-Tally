@@ -139,6 +139,12 @@ namespace TallyServer.Services
         }
         private void OnInput(InputPropertiesGetCommand inputPropertiesGetCommand)
         {
+            if(AtemStatus.Inputs.Any(I => I.Id == inputPropertiesGetCommand.Id.ToString()))
+            {
+                Log.LogInformation($"Input already registrated '${inputPropertiesGetCommand.Id}'");
+                return;
+            }
+
             var input = new Input()
             {
                 Id = inputPropertiesGetCommand.Id.ToString(),
@@ -169,7 +175,7 @@ namespace TallyServer.Services
                 input.NewMixer(MixEffectBlockId.Four);
             }
 
-            Log.LogInformation($"Input  '{input.Id}' / '{input.LongName}'");
+            Log.LogInformation($"Registrated Input '{input.Id}' / '{input.LongName}'");
 
             AtemStatus.Inputs.Add(input);
         }
@@ -303,8 +309,6 @@ namespace TallyServer.Services
         {
             foreach (var input in AtemStatus.Inputs)
             {
-                //Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
-
                 await UpdateRegistratedDevices(input);
                 await TallyHub.Clients.All.RecieveChannel(input);
             }

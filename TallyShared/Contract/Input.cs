@@ -1,4 +1,5 @@
 ﻿using LibAtem.Common;
+#nullable disable
 
 namespace TallyServer.Contract
 {

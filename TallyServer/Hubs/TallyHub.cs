@@ -2,12 +2,13 @@
 using TallyServer.Contract;
 using TallyServer.Services;
 using TallyShared.Contract;
+#nullable disable
 
 namespace TallyServer.Hubs
 {
     public class TallyHub : Hub<ITallyClient>
     {
-        ILogger<TallyHub> Log;
+        readonly ILogger<TallyHub> Log;
 
         AtemSettings AtemSettings { get; set; }
         AtemStatus AtemStatus { get; set; }
@@ -24,18 +25,18 @@ namespace TallyServer.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            Log.LogInformation($"Device connected with connection id {Context.ConnectionId}");
+            Log.LogInformation("Device connected with connection id {connectionId}", Context.ConnectionId);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            Log.LogInformation($"Device with connection id {Context.ConnectionId} disconnected");
+            Log.LogInformation("Device with connection id {connectionId} disconnected", Context.ConnectionId);
         }
 
         public async Task RegisterTally(string tally)
         {
             await  Groups.AddToGroupAsync(Context.ConnectionId, tally);
-            Log.LogInformation($"RegisterTally {Context.ConnectionId} as {tally}");
+            Log.LogInformation("RegisterTally {connectionId} as {tally}", Context.ConnectionId,tally);
             await Update();
 
         }
@@ -43,7 +44,7 @@ namespace TallyServer.Hubs
         public async Task UnregisterTally(string tally)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, tally);
-            Log.LogInformation($"UnregisterTally {Context.ConnectionId} as {tally}");
+            Log.LogInformation("UnregisterTally {connectionId} as {tally}", Context.ConnectionId,tally);
             
         }
 
@@ -55,7 +56,7 @@ namespace TallyServer.Hubs
         {
             foreach (var input in AtemStatus.Inputs)
             {
-                Log.LogDebug($"{input.Id}, Program: {input.Program}, Preview: {input.Preview}");
+                Log.LogDebug("{id}, Program: {program}, Preview: {preview}", input.Id,input.Program,input.Preview);
 
                 await UpdateRegistratedDevices(input);
                 await Clients.All.RecieveChannel(input);

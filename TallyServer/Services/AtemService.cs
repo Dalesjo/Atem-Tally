@@ -26,8 +26,8 @@ namespace TallyServer.Services
 
             Client = new AtemClient(AtemSettings.Mixer);
             Client.OnReceive += OnCommand;
-            Client.OnConnection += onConnect;
-            Client.OnDisconnect += onDisconnect;
+            Client.OnConnection += OnConnect;
+            Client.OnDisconnect += OnDisconnect;
         }
 
         public IHubContext<TallyHub, ITallyClient> TallyHub { get; private set; }
@@ -35,7 +35,6 @@ namespace TallyServer.Services
 
         private AtemStatus AtemStatus { get; set; }
         private AtemClient Client { get; set; }
-        private bool firstCommand { get; set; } = true;
         private ILogger Log { get; set; }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -51,7 +50,7 @@ namespace TallyServer.Services
             return Task.CompletedTask;
         }
 
-        private bool IsMixerDisabled(MixEffectBlockId index, string source)
+        private bool IsMixerDisabled(MixEffectBlockId index)
         {
             if (index == MixEffectBlockId.One && AtemSettings.ME1 == false)
             {
@@ -115,7 +114,7 @@ namespace TallyServer.Services
 
                 if (sendUpdate)
                 {
-                    Task.WhenAll(Update());
+                    Update().Wait();
                 }
             }
             catch (Exception e)
@@ -124,24 +123,24 @@ namespace TallyServer.Services
             }
         }
 
-        private void onConnect(object sender)
+        private void OnConnect(object sender)
         {
-            Log.LogInformation($"Connected to ATEM {AtemSettings.Mixer}");
+            Log.LogInformation("Connected to ATEM {mixer}",AtemSettings.Mixer);
         }
 
         /// <summary>
         /// Log disconnects from ATEM.
         /// </summary>
         /// <param name="sender"></param>
-        private void onDisconnect(object sender)
+        private void OnDisconnect(object sender)
         {
-            Log.LogInformation($"Disconnected from ATEM ${AtemSettings.Mixer}");
+            Log.LogInformation("Disconnected from ATEM {mixer}", AtemSettings.Mixer);
         }
         private void OnInput(InputPropertiesGetCommand inputPropertiesGetCommand)
         {
             if(AtemStatus.Inputs.Any(I => I.Id == inputPropertiesGetCommand.Id.ToString()))
             {
-                Log.LogInformation($"Input already registrated '${inputPropertiesGetCommand.Id}'");
+                Log.LogInformation("Input already registrated '{input}'",inputPropertiesGetCommand.Id);
                 return;
             }
 
@@ -175,7 +174,7 @@ namespace TallyServer.Services
                 input.NewMixer(MixEffectBlockId.Four);
             }
 
-            Log.LogInformation($"Registrated Input '{input.Id}' / '{input.LongName}'");
+            Log.LogInformation("Registrated Input '{input}' / '{name}'", input.Id,input.LongName);
 
             AtemStatus.Inputs.Add(input);
         }
@@ -188,7 +187,7 @@ namespace TallyServer.Services
         {
             var index = previewInputGetCommand.Index;
             var preview = previewInputGetCommand.Source.ToString();
-            if (IsMixerDisabled(index, preview))
+            if (IsMixerDisabled(index))
             {
                 return false;
             }
@@ -225,7 +224,7 @@ namespace TallyServer.Services
             otherLamps.ForEach(m => m.Preview = false);
             thisProgram.ForEach(m => m.Preview = true);
 
-            Log.LogTrace($"onPreview {index} {preview}");
+            Log.LogTrace("OnPreview {index} {preview}",index,preview);
 
             return true;
         }
@@ -237,7 +236,7 @@ namespace TallyServer.Services
         {
             var index = programInputGetCommand.Index;
             var program = programInputGetCommand.Source.ToString();
-            if (IsMixerDisabled(index, program))
+            if (IsMixerDisabled(index))
             {
                 return false;
             }
@@ -269,7 +268,7 @@ namespace TallyServer.Services
             otherLamps.ForEach(m => m.Program = false);
             thisProgram.ForEach(m => m.Program = true);
 
-            Log.LogInformation($"onProgram {index} {program}");
+            Log.LogInformation("OnProgram {index} {program}",index,program);
 
             return true;
         }
@@ -297,7 +296,7 @@ namespace TallyServer.Services
                 input.Program = source.Value.Item1;
                 input.Preview = source.Value.Item2;
 
-                Log.LogTrace($"onTally {input.LongName},{input.Program},{input.Preview}");
+                Log.LogTrace("OnTally {name},{program},{preview}",input.LongName,input.Program,input.Preview);
             }
         }
 
@@ -333,7 +332,7 @@ namespace TallyServer.Services
 
             foreach (var tally in tallies)
             {
-                Log.LogDebug($"{tally.Name}, Program: {tally.Program}, Preview: {tally.Preview}");
+                Log.LogDebug("{name}, Program: {program}, Preview: {preview}",tally.Name,tally.Program,tally.Preview);
                 await TallyHub.Clients.Group(tally.Name).ReceiveTally(tally);
             }
         }

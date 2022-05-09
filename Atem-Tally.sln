@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.State", "LibAtem.St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtem.State.Test", "LibAtem.State.Test\LibAtem.State.Test.csproj", "{EF3BA489-1BED-4DF6-957E-3AFCDB9A0E7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyClient", "TallyClient\TallyClient.csproj", "{1DEA8C4B-2D6F-436C-8A8A-56B7D78DFA1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallyClient", "TallyClient\TallyClient.csproj", "{1DEA8C4B-2D6F-436C-8A8A-56B7D78DFA1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyShared", "TallyShared\TallyShared.csproj", "{7595221C-E697-4A83-8B7D-D9950BD8589E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallyShared", "TallyShared\TallyShared.csproj", "{7595221C-E697-4A83-8B7D-D9950BD8589E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E72997D1-D129-4FEF-8C28-20DA8CFAE88D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
